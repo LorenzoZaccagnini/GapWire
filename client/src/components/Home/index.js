@@ -85,7 +85,11 @@ class Home extends Component {
           id: this.props.userId,
         },
       })
-      if (payload.users.length === 1) {
+      if (payload.users.length === 2 && this.props.iAmOwner) {
+        //TODO: LOCK FROM BACKEND
+        this.props.sendUnencryptedMessage('TOGGLE_LOCK_ROOM')
+      }
+      if (payload.users.length === 2 && !this.props.iAmOwner) {
         this.props.openModal('Welcome');
       }
     })

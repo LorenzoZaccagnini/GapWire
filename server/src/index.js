@@ -59,7 +59,7 @@ router.post('/abuse/:roomId', koaBody, async (ctx) => {
       });
     }
   }
-  
+
   await redis.hincrbyAsync('abuse', roomId, 1);
 
   ctx.status = 200;
@@ -145,6 +145,24 @@ io.on('connection', async (socket) => {
   })
 })
 
+let activeRooms = () => {
+        var activeRooms = [];
+        Object.keys(io.sockets.adapter.rooms).forEach(room=>{
+            var isRoom = true;
+            Object.keys(io.sockets.adapter.sids).forEach(id=>{
+                isRoom = (id === room)? false: isRoom;
+            });
+            console.log('req len', room);
+            if(isRoom)activeRooms.push(room);
+        });
+        return activeRooms;
+      }
+
+router.get('koala', '/active', (ctx) => {
+  ctx.body = activeRooms();
+})
+
+
 const init = async () => {
   server.listen(PORT, () => {
     console.log(`Darkwire is online at port ${PORT}`);
@@ -154,4 +172,3 @@ const init = async () => {
 }
 
 init()
-

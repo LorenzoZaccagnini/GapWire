@@ -9,6 +9,7 @@ import configureStore from 'store'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import shortId from 'shortid'
 import Home from 'components/Home'
+import Main from 'components/Main'
 import { hasTouchSupport } from './utils/dom'
 
 const store = configureStore()
@@ -26,8 +27,9 @@ export default class Root extends Component {
         <BrowserRouter>
           <div className="h-100">
             <Switch>
-              <Route exact path="/" render={() => <Redirect to={`/${shortId.generate()}`} />} />
-              <Route path="/:roomId" component={Home} />
+              <Route exact path="/" component={Main}/>
+              <Route exact path="/r" render={() => <Redirect to={`/r/${shortId.generate()}`} />} />
+              <Route path="/r/:roomId" component={Home} />
             </Switch>
           </div>
         </BrowserRouter>
