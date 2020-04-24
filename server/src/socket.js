@@ -16,7 +16,7 @@ export default class Socket {
     }
 
     this.init(opts)
-  }  
+  }
 
   async init(opts) {
     const { roomId, socket, room } = opts
@@ -49,6 +49,8 @@ export default class Socket {
   }
 
   joinRoom(roomId, socketId) {
+
+
     return new Promise((resolve, reject) => {
       getIO().of('/').adapter.remoteJoin(socketId, roomId, (err) => {
         if (err) {
@@ -75,6 +77,10 @@ export default class Socket {
         }
       }
 
+      console.log('user len: ', room.users.length);
+
+
+
       const newRoom = {
         ...room,
         users: [...(room.users || []), {
@@ -89,6 +95,8 @@ export default class Socket {
         ...newRoom,
         id: this.roomIdOriginal
       });
+
+      console.log('entered');
     })
 
     socket.on('TOGGLE_LOCK_ROOM', async (data, callback) => {

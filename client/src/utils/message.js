@@ -22,9 +22,9 @@ export const process = (payload, state) => new Promise(async (resolve, reject) =
           privateKey,
           {
             name: 'RSA-OAEP',
-            hash: { name: 'SHA-1' },
+            hash: { name: 'SHA-256' },
           },
-          { name: 'AES-CBC' },
+          { name: 'AES-GCM' },
           true,
           ['decrypt']
         )
@@ -35,7 +35,7 @@ export const process = (payload, state) => new Promise(async (resolve, reject) =
           privateKey,
           {
             name: 'RSA-OAEP',
-            hash: { name: 'SHA-1' },
+            hash: { name: 'SHA-256' },
           },
           { name: 'HMAC', hash: { name: 'SHA-256' } },
           true,

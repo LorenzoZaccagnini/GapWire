@@ -35,7 +35,7 @@ export default class Crypto {
         name: 'RSA-OAEP',
         modulusLength: 2048, // can be 1024, 2048, or 4096
         publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-        hash: { name: 'SHA-1' },
+        hash: { name: 'SHA-256' },
       },
       true, // whether the key is extractable (i.e. can be used in exportKey)
       ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey'] // must be ['encrypt', 'decrypt'] or ['wrapKey', 'unwrapKey']
@@ -45,11 +45,11 @@ export default class Crypto {
   createSecretKey() {
     return this.crypto.subtle.generateKey(
       {
-        name: 'AES-CBC',
-        length: 256, // can be  128, 192, or 256
+          name: "AES-GCM",
+          length: 256, //can be  128, 192, or 256
       },
-      true, // whether the key is extractable (i.e. can be used in exportKey)
-      ['encrypt', 'decrypt'] // can be 'encrypt', 'decrypt', 'wrapKey', or 'unwrapKey'
+      true, //whether the key is extractable (i.e. can be used in exportKey)
+      ["encrypt", "decrypt"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
     )
   }
 
@@ -67,7 +67,7 @@ export default class Crypto {
   encryptMessage(data, secretKey, iv) {
     return this.crypto.subtle.encrypt(
       {
-        name: 'AES-CBC',
+        name: 'AES-GCM',
         // Don't re-use initialization vectors!
         // Always generate a new iv every time your encrypt!
         iv,
@@ -80,7 +80,7 @@ export default class Crypto {
   decryptMessage(data, secretKey, iv) {
     return this.crypto.subtle.decrypt(
       {
-        name: 'AES-CBC',
+        name: 'AES-GCM',
         iv, // The initialization vector you used to encrypt
       },
       secretKey, // from generateKey or importKey above
@@ -91,7 +91,7 @@ export default class Crypto {
   importEncryptDecryptKey(jwkData, format = 'jwk', ops) {
     const hashObj = {
       name: 'RSA-OAEP',
-      hash: { name: 'SHA-1' },
+      hash: { name: 'SHA-256' },
     }
 
     return this.crypto.subtle.importKey(
@@ -142,7 +142,7 @@ export default class Crypto {
       keyToWrapWith,
       {
         name: 'RSA-OAEP',
-        hash: { name: 'SHA-1' },
+        hash: { name: 'SHA-256' },
       }
     )
   }
