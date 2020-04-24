@@ -15,6 +15,11 @@ import mailer from './utils/mailer';
 import koaStatic from 'koa-static';
 import koaSend from 'koa-send';
 import {pollForInactiveRooms} from './inactive_rooms';
+import mongoose from 'mongoose'
+import passport from 'koa-passport'
+import jsonwebtoken from 'jsonwebtoken'
+import passportStrategies from './passport'
+import User from './mongoose'
 
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
@@ -24,6 +29,13 @@ const redis = Redis.createClient(process.env.REDIS_URL)
 export const getRedis = () => redis
 
 const env = process.env.NODE_ENV || 'development';
+
+mongoose.Promise = Promise
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useCreateIndex: true })
+
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const app = new Koa();
 const PORT = process.env.PORT || 3001;
@@ -43,27 +55,7 @@ if ((siteURL || env === 'development') && !isReviewApp) {
   }));
 }
 
-router.post('/abuse/:roomId', koaBody, async (ctx) => {
-  let { roomId } = ctx.params;
-
-  roomId = roomId.trim();
-
-  if (process.env.ABUSE_FROM_EMAIL_ADDRESS && process.env.ABUSE_TO_EMAIL_ADDRESS) {
-    const abuseForRoomExists = await redis.hgetAsync('abuse', roomId);
-    if (!abuseForRoomExists) {
-      mailer.send({
-        from: process.env.ABUSE_FROM_EMAIL_ADDRESS,
-        to: process.env.ABUSE_TO_EMAIL_ADDRESS,
-        subject: 'Darkwire Abuse Notification',
-        text: `Room ID: ${roomId}`
-      });
-    }
-  }
-
-  await redis.hincrbyAsync('abuse', roomId, 1);
-
-  ctx.status = 200;
-});
+app.use(passport.initialize())
 
 app.use(router.routes());
 
@@ -153,7 +145,6 @@ let activeRooms = () => {
                 isRoom = (id === room)? false: isRoom;
             });
             if (isRoom && io.sockets.adapter.rooms[room]["length"] === 1) {
-              console.log("can join: ", room);
               activeRooms.push(room);
             }
         });
@@ -162,6 +153,93 @@ let activeRooms = () => {
 
 router.get('koala', '/active', (ctx) => {
   ctx.body = activeRooms();
+})
+
+router.post('/login', async ctx => {
+  await passport.authenticate(
+    'local',
+    (err, user, info, status) => {
+      if (err) {
+        ctx.throw(err.status)
+      } else if (!user) {
+        ctx.body = { info }
+      } else {
+        const payload = {
+          id: user.id
+        }
+
+        const token = jsonwebtoken.sign(
+          payload,
+          'secret key'
+        )
+
+        ctx.body = {
+          token: token,
+          email: user.email,
+          defense: user.cookieSalt
+        }
+      }
+    }
+  )(ctx)
+})
+
+router.post('/registration', async ctx => {
+  try {
+    await User.create(ctx.request.body)
+
+    await passport.authenticate(
+      'local',
+      (err, user, info, status) => {
+        if (err) {
+          ctx.throw(err.status)
+        } else if (!user) {
+          ctx.body = { info }
+        } else {
+          const payload = {
+            id: user.id
+          }
+
+          const token = jsonwebtoken.sign(
+            payload,
+            'secret key'
+          )
+
+          ctx.body = {
+            token: token,
+            email: user.email,
+            defense: user.cookieSalt
+          }
+        }
+      }
+    )(ctx)
+  } catch (err) {
+    if (err.name == 'MongoError' && err.code == 11000) {
+      ctx.body = {
+        info: { message: 'This email is already used' }
+      }
+      return
+    }
+
+    ctx.throw(err.status)
+  }
+})
+
+router.post('/guard', async (ctx) => {
+  await passport.authenticate('jwt', (err, user) => {
+    if (user) {
+      if (user.cookieSalt == ctx.request.body.defense) {
+        ctx.body = user.email
+      } else {
+        ctx.body = {
+          info: { message: 'Something wrong with cookie' }
+        }
+      }
+    } else if (!user) {
+      ctx.body = { info: { message: 'Please, log in!' }}
+    } else if (err) {
+      ctx.status = err.status
+    }
+  })(ctx)
 })
 
 
