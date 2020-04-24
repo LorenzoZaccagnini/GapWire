@@ -152,8 +152,10 @@ let activeRooms = () => {
             Object.keys(io.sockets.adapter.sids).forEach(id=>{
                 isRoom = (id === room)? false: isRoom;
             });
-            console.log('req len', room);
-            if(isRoom)activeRooms.push(room);
+            if (isRoom && io.sockets.adapter.rooms[room]["length"] === 1) {
+              console.log("can join: ", room);
+              activeRooms.push(room);
+            }
         });
         return activeRooms;
       }

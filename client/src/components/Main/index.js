@@ -1,13 +1,28 @@
-import React from "react";
+import React, { Component } from "react";
+import {withRouter} from 'react-router';
+
 import {
   Link
 } from 'react-router-dom';
-export default class App extends React.Component {
-  state = {
-    total: null,
-    next: null,
-    operation: null,
-  };
+class Main extends Component {
+  constructor(props) {
+    super(props)
+    this.searchAndJoin = this.searchAndJoin.bind(this);
+
+  }
+
+  searchAndJoin() {
+    fetch("http://localhost:3001/active")
+      .then(response => response.json())
+      .then(data => {
+        this.setState({ activeRooms: data})
+        console.log(data);
+        const randRoom = data[Math.floor(Math.random() * data.length)];
+        console.log(randRoom);
+        this.props.history.push('/r/' + randRoom);
+      }
+    );
+  }
 
 
   render() {
@@ -17,7 +32,10 @@ export default class App extends React.Component {
           <div className="mx-auto">
             Created from fork of Darkwire, it's an anonymous and open source chat where you can get help from qualified professionals
           </div>
-          <button type="button" class="btn btn-primary btn-lg mt-5">Join a Room</button>
+          <button type="button"
+          class="btn btn-primary btn-lg mt-5"
+          onClick={() => this.searchAndJoin()}
+          >Join a Room</button>
           <div className="mt-5">
              <Link to="/r">
              Login for authorized personnel
@@ -27,3 +45,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default Main;
