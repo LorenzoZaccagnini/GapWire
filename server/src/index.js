@@ -145,7 +145,9 @@ let activeRooms = () => {
             Object.keys(io.sockets.adapter.sids).forEach(id=>{
                 isRoom = (id === room)? false: isRoom;
             });
+            //NOT MORE THAN 2 PEOPLE IN ONE ROOM
             if (isRoom && io.sockets.adapter.rooms[room]["length"] === 1) {
+              console.log(io.sockets.adapter.rooms[room]);
               activeRooms.push(room);
             }
         });
@@ -159,6 +161,7 @@ router.get('/active', (ctx) => {
 router.post('/api/v1/login', async(ctx, next) => {
   await passport.authenticate('local', function (err, user) {
     if (user == false) {
+      console.log(ctx.request.body);
       ctx.body = "Login failed";
     } else {
       //--payload - info to put in the JWT
@@ -189,7 +192,7 @@ router.post('/api/v1/signup', async(ctx, next) => {
 });
 
 
-router.get('/api/v1/guard', async(ctx, next) => {
+router.get('/api/v1/guard_test', async(ctx, next) => {
 
   await passport.authenticate('jwt', function (err, user) {
     if (user) {

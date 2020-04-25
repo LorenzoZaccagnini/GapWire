@@ -15,11 +15,12 @@ class Main extends Component {
     fetch("http://localhost:3001/active")
       .then(response => response.json())
       .then(data => {
-        this.setState({ activeRooms: data})
-        console.log(data);
-        const randRoom = data[Math.floor(Math.random() * data.length)];
-        console.log(randRoom);
-        this.props.history.push('/r/' + randRoom);
+        if (Array.isArray(data) && data.length) {
+          console.log(data);
+          const randRoom = data[Math.floor(Math.random() * data.length)];
+          console.log(randRoom);
+          this.props.history.push('/r/' + randRoom);
+        }
       }
     );
   }
@@ -28,7 +29,7 @@ class Main extends Component {
   render() {
     return (
       <div className="container mt-5" align="center">
-        <h1> Druwire </h1>
+        <h1 className="pt-5"> Druwire </h1>
           <div className="mx-auto">
             Created from fork of Darkwire, it's an anonymous and open source chat where you can get help from qualified professionals
           </div>
@@ -36,9 +37,9 @@ class Main extends Component {
           class="btn btn-primary btn-lg mt-5"
           onClick={() => this.searchAndJoin()}
           >Join a Room</button>
-          <div className="mt-5">
-             <Link to="/r">
-             Login for authorized personnel
+        <div className="pt-5">
+             <Link to="/login">
+               Login for authorized personnel
              </Link>
           </div>
       </div>
