@@ -2,39 +2,39 @@ import mongoose from 'mongoose'
 import crypto from 'crypto'
 
 const userSchema = new mongoose.Schema({
+  displayName: String,
   email: {
     type: String,
-    required: true,
-    unique: true,
-    index: true
+    required: 'e-mail is required',
+    unique: 'this e-mail already exist'
   },
-  passwordSalt: {
-    type: String,
-    required: true
-  },
-  cookieSalt: {
-    type: String,
-    required: true
-  },
-  passwordHash: {
-    type: String,
-    required: true
+  passwordHash: String,
+  salt: String,
+}, {
+  timestamps: true
+});
+
+userSchema.virtual('password')
+.set(function (password) {
+  this._plainPassword = password;
+  if (password) {
+    this.salt = crypto.randomBytes(128).toString('base64');
+    this.passwordHash = crypto.pbkdf2Sync(password, this.salt, 1, 128, 'sha512');
+  } else {
+    this.salt = undefined;
+    this.passwordHash = undefined;
   }
 })
 
-userSchema.virtual('password')
-  .set(function (password) {
-    this.passwordSalt = crypto.randomBytes(32)
-    this.cookieSalt = crypto.randomBytes(8)
-    this.passwordHash = crypto.pbkdf2Sync(
-      password, this.passwordSalt, 2, 32, 'sha256'
-    )
-  })
+.get(function () {
+  return this._plainPassword;
+});
 
 userSchema.methods.checkPassword = function (password) {
-  return crypto.pbkdf2Sync(
-    password, this.passwordSalt, 2, 32, 'sha256'
-  ) == this.passwordHash
-}
+  if (!password) return false;
+  if (!this.passwordHash) return false;
+  return crypto.pbkdf2Sync(password, this.salt, 1, 128, 'sha512') == this.passwordHash;
+};
+
 
 export default mongoose.model('User', userSchema)

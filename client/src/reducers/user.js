@@ -3,6 +3,7 @@ const initialState = {
   publicKey: {},
   username: '',
   id: '',
+  currentUser: {}
 }
 
 const user = (state = initialState, action) => {
@@ -17,6 +18,8 @@ const user = (state = initialState, action) => {
         ...state,
         username: action.payload.newUsername,
       }
+    case 'LOGIN_USER':
+      return {...state, currentUser: action.payload}
     default:
       return state
   }

@@ -1,46 +1,45 @@
 import passport from 'passport'
 import LocalStrategy from 'passport-local'
 import jwt from 'passport-jwt'
+const JwtStrategy = require('passport-jwt').Strategy; // Auth via JWT
+const ExtractJwt = require('passport-jwt').ExtractJwt; // Auth via JWT
 import User from '../mongoose'
 
 passport.use(new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'password'
-},
-(email, password, done) => {
-  User.findOne({ email })
-    .then(user => {
-      if (!user) {
-        return done(
-          null,
-          false,
-          { message: 'User doesn\'t exist' }
-        )
+    usernameField: 'email',
+    passwordField: 'password',
+    session: false
+  },
+  function (email, password, done) {
+    User.findOne({email}, (err, user) => {
+      if (err) {
+        return done(err);
       }
 
-      if (!user.checkPassword(password)) {
-        return done(
-          null,
-          false,
-          { message: 'Password is incorrect' }
-        )
+      if (!user || !user.checkPassword(password)) {
+        return done(null, false, {message: 'User does not exist or wrong password.'});
       }
+      return done(null, user);
+    });
+  }
+  )
+);
 
-      return done(null, user)
-    }, err => done(err))
-}))
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
+  secretOrKey: process.env.JWT_SECRET
+};
 
-passport.use(new jwt.Strategy({
-  jwtFromRequest: jwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'secret key'
-},
-(payload, done) => {
-  User.findById(payload.id)
-    .then(user => {
+passport.use(new JwtStrategy(jwtOptions, function (payload, done) {
+    User.findById(payload.id, (err, user) => {
+      if (err) {
+        return done(err)
+      }
       if (user) {
         done(null, user)
       } else {
         done(null, false)
       }
-    }, err => done(err))
-}))
+    })
+  })
+);

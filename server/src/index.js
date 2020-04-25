@@ -20,6 +20,7 @@ import passport from 'koa-passport'
 import jsonwebtoken from 'jsonwebtoken'
 import passportStrategies from './passport'
 import User from './mongoose'
+import jwt from 'passport-jwt'
 
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
@@ -31,11 +32,10 @@ export const getRedis = () => redis
 const env = process.env.NODE_ENV || 'development';
 
 mongoose.Promise = Promise
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useCreateIndex: true })
+mongoose.set('debug', true);
+mongoose.connect(process.env.MONGO_URL)
+mongoose.connection.on('error', console.error);
 
-var db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const app = new Koa();
 const PORT = process.env.PORT || 3001;
@@ -56,6 +56,7 @@ if ((siteURL || env === 'development') && !isReviewApp) {
 }
 
 app.use(passport.initialize())
+app.use(koaBody)
 
 app.use(router.routes());
 
@@ -151,101 +152,60 @@ let activeRooms = () => {
         return activeRooms;
       }
 
-router.get('koala', '/active', (ctx) => {
+router.get('/active', (ctx) => {
   ctx.body = activeRooms();
 })
 
-router.post('/login', async ctx => {
-  await passport.authenticate(
-    'local',
-    (err, user, info, status) => {
-      if (err) {
-        ctx.throw(err.status)
-      } else if (!user) {
-        ctx.body = { info }
-      } else {
-        const payload = {
-          id: user.id
-        }
+router.post('/api/v1/login', async(ctx, next) => {
+  await passport.authenticate('local', function (err, user) {
+    if (user == false) {
+      ctx.body = "Login failed";
+    } else {
+      //--payload - info to put in the JWT
+      const payload = {
+        id: user.id,
+        displayName: user.displayName,
+        email: user.email
+      };
+      const token = jsonwebtoken.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' }); //JWT is created here
 
-        const token = jsonwebtoken.sign(
-          payload,
-          'secret key'
-        )
-
-        ctx.body = {
-          token: token,
-          email: user.email,
-          defense: user.cookieSalt
-        }
-      }
+      ctx.body = {user: user.displayName, token: 'JWT ' + token};
     }
-  )(ctx)
-})
+  })(ctx, next);
 
-router.post('/registration', async ctx => {
+});
+
+
+router.post('/api/v1/signup', async(ctx, next) => {
+  console.log(ctx.request.body);
   try {
-    await User.create(ctx.request.body)
-
-    await passport.authenticate(
-      'local',
-      (err, user, info, status) => {
-        if (err) {
-          ctx.throw(err.status)
-        } else if (!user) {
-          ctx.body = { info }
-        } else {
-          const payload = {
-            id: user.id
-          }
-
-          const token = jsonwebtoken.sign(
-            payload,
-            'secret key'
-          )
-
-          ctx.body = {
-            token: token,
-            email: user.email,
-            defense: user.cookieSalt
-          }
-        }
-      }
-    )(ctx)
-  } catch (err) {
-    if (err.name == 'MongoError' && err.code == 11000) {
-      ctx.body = {
-        info: { message: 'This email is already used' }
-      }
-      return
-    }
-
-    ctx.throw(err.status)
+    ctx.body = await User.create(ctx.request.body);
   }
-})
+  catch (err) {
+    console.log(err);
+    ctx.status = 400;
+    ctx.body = err;
+  }
+});
 
-router.post('/guard', async (ctx) => {
-  await passport.authenticate('jwt', (err, user) => {
+
+router.get('/api/v1/guard', async(ctx, next) => {
+
+  await passport.authenticate('jwt', function (err, user) {
     if (user) {
-      if (user.cookieSalt == ctx.request.body.defense) {
-        ctx.body = user.email
-      } else {
-        ctx.body = {
-          info: { message: 'Something wrong with cookie' }
-        }
-      }
-    } else if (!user) {
-      ctx.body = { info: { message: 'Please, log in!' }}
-    } else if (err) {
-      ctx.status = err.status
+      ctx.body = "hello " + user.displayName;
+    } else {
+      ctx.body = "No such user";
+      console.log("err", err)
     }
-  })(ctx)
-})
+  } )(ctx, next)
+
+});
 
 
 const init = async () => {
   server.listen(PORT, () => {
-    console.log(`Darkwire is online at port ${PORT}`);
+    console.log(`Druwire is online at port ${PORT}`);
   })
 
   pollForInactiveRooms();
