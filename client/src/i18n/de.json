@@ -1,7 +1,7 @@
 {
   "aboutButton": "Über",
   "aboutHeader": "Über",
-  "agreement": "Durch die Nutzung von Darkwire stimmen Sie unseren Nutzungsbedingungen und Nutzungsbedingungen zu",
+  "agreement": "Durch die Nutzung von Druwire stimmen Sie unseren Nutzungsbedingungen und Nutzungsbedingungen zu",
   "copyButtonTooltip": "Kopiert",
   "copyRoomHeader": "Dieser Raum",
   "downloadFile": "{filename} herunterladen",
@@ -27,7 +27,7 @@
   "userJoined": "{username} ist beigetreten",
   "userLeft": "{username} übrig",
   "userSentFile": "{username} hat Ihnen eine Datei gesendet.",
-  "welcomeHeader": "Willkommen bei Darkwire v2.0",
+  "welcomeHeader": "Willkommen bei Druwire",
   "welcomeModalCTA": "OK",
-  "helpTranslate": "Hilf uns, Darkwire zu übersetzen!"
+  "helpTranslate": "Hilf uns, Druwire zu übersetzen!"
 }

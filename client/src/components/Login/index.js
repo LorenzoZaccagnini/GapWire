@@ -8,8 +8,8 @@ import {
 
 class Login extends Component {
   state = {
-    email: "lorenzo2@mail.eu",
-    password: "111111"
+    email: "",
+    password: ""
   }
 
   handleChange = event => {

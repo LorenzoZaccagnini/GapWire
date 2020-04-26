@@ -2,14 +2,14 @@
   "newRoomButton": "New Room",
   "lockedRoom": "{username} locked the room",
   "unlockedRoom": "{username} unlocked the room",
-  "agreement": "By using Darkwire, you are agreeing to our Acceptable Use Policy and Terms of Service",
+  "agreement": "By using Druwire, you are agreeing to our Acceptable Use Policy and Terms of Service",
   "typePlaceholder": "Type here",
   "aboutButton": "About",
   "settingsButton": "Settings",
   "settings": "Settings",
   "aboutHeader": "About",
   "copyButtonTooltip": "Copied",
-  "welcomeHeader": "Welcome to Darkwire v2.0",
+  "welcomeHeader": "Welcome to Druwire",
   "sentFile": "You sent {filename}",
   "userJoined": "{username} joined",
   "userLeft": "{username} left",
@@ -34,5 +34,5 @@
   "sound": "Sound",
   "welcomeModalCTA": "Ok",
   "lockedRoomHeader": "This room is locked",
-  "helpTranslate": "Help us translate Darkwire!"
+  "helpTranslate": "Help us translate Druwire!"
 }

@@ -6,8 +6,6 @@ const initialState = {
   currentUser: {}
 }
 
-//I HATE REDUX WITH ALL MY HEART
-
 const user = (state = initialState, action) => {
   switch (action.type) {
     case 'CREATE_USER':

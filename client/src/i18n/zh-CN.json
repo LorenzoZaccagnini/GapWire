@@ -1,7 +1,7 @@
 {
   "aboutButton": "关于",
   "aboutHeader": "关于",
-  "agreement": "使用Darkwire即表示您同意我们的可接受使用政策和服务条款",
+  "agreement": "使用Druwire即表示您同意我们的可接受使用政策和服务条款",
   "copyButtonTooltip": "复制",
   "copyRoomHeader": "这个房间",
   "downloadFile": "下载 {filename}",
@@ -27,7 +27,7 @@
   "userJoined": "{username} 已加入",
   "userLeft": "{username} 离开了",
   "userSentFile": "{username} 向您发送了一个文件。",
-  "welcomeHeader": "欢迎来到Darkwire v2.0",
+  "welcomeHeader": "欢迎来到Druwire",
   "welcomeModalCTA": "好",
-  "helpTranslate": "帮助我们翻译Darkwire"
+  "helpTranslate": "帮助我们翻译Druwire"
 }

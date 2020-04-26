@@ -1,10 +1,18 @@
 import _ from 'lodash';
 import uuid from 'uuid/v4';
-import { getIO, getRedis } from './index'
+import {
+  getIO,
+  getRedis
+} from './index'
 
 export default class Socket {
   constructor(opts) {
-    const { roomId, socket, room, roomIdOriginal } = opts
+    const {
+      roomId,
+      socket,
+      room,
+      roomIdOriginal
+    } = opts
 
     this._roomId = roomId
     this.socket = socket;
@@ -19,7 +27,11 @@ export default class Socket {
   }
 
   async init(opts) {
-    const { roomId, socket, room } = opts
+    const {
+      roomId,
+      socket,
+      room
+    } = opts
     await this.joinRoom(roomId, socket.id)
     this.handleSocket(socket)
   }
@@ -67,7 +79,26 @@ export default class Socket {
     });
 
     socket.on('USER_ENTER', async (payload) => {
+
+
       let room = await this.fetchRoom()
+      if (await typeof this._roomId !== 'undefined') {
+        console.log(this._roomId);
+        let userNum = await Object.keys(socket.adapter.rooms[this._roomId].sockets).length
+        console.log(userNum);
+
+
+        if (userNum > 2) {
+          console.log("more than 2");
+          socket.disconnect(true);
+          return;
+        }
+      } else {
+        socket.disconnect(true);
+        return;
+      }
+
+
       if (_.isEmpty(room)) {
         room = {
           id: this._roomId,
@@ -77,7 +108,6 @@ export default class Socket {
         }
       }
 
-      console.log('user len: ', room.users.length);
 
 
 
@@ -133,21 +163,38 @@ export default class Socket {
   async handleDisconnect(socket) {
     let room = await this.fetchRoom()
 
+    const user = await (room.users || []).find(u => u.socketId === socket.id)
+
+    console.log("user: ", user);
+
     const newRoom = {
       ...room,
       users: (room.users || []).filter(u => u.socketId !== socket.id).map((u, index) => ({
-        ...u,
-        isOwner: index === 0,
+        ...u
       }))
     }
 
     await this.saveRoom(newRoom)
 
-    getIO().to(this._roomId).emit('USER_EXIT', newRoom.users);
+    getIO().to(this._roomId).emit('USER_EXIT', room.users);
+
+    if (typeof user.isOwner !== 'undefined' && await user.isOwner) {
+      console.log("lock room");
+      getIO().of('/').clients(function(error, clients) {
+        if (error) throw error;
+        for (var i = 0; i < clients.length; i++) {
+          if (typeof getIO().sockets.connected[clients[i]] !== 'undefined') {
+            getIO().sockets.connected[clients[i]].disconnect(true)
+          }
+        }
+      })
+    }
 
     if (newRoom.users && newRoom.users.length === 0) {
+      console.log("destroy room");
       await this.destroyRoom()
     }
+
 
     socket.disconnect(true);
   }

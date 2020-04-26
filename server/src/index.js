@@ -32,7 +32,6 @@ export const getRedis = () => redis
 const env = process.env.NODE_ENV || 'development';
 
 mongoose.Promise = Promise
-mongoose.set('debug', true);
 mongoose.connect(process.env.MONGO_URL)
 mongoose.connection.on('error', console.error);
 

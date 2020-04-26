@@ -2,14 +2,14 @@
   "newRoomButton": "Nouveau Salon",
   "lockedRoom": "{username} a verrouillé le salon",
   "unlockedRoom": "{username} a déverrouillé le salon",
-  "agreement": "En utilisant Darkwire, vous acceptez notre Politique d'Utilisation et nos Conditions d'Utilisation",
+  "agreement": "En utilisant Druwire, vous acceptez notre Politique d'Utilisation et nos Conditions d'Utilisation",
   "typePlaceholder": "Écrivez ici",
   "aboutButton": "À propos",
   "settingsButton": "Paramètres",
   "settings": "Paramètres",
   "aboutHeader": "À propos",
   "copyButtonTooltip": "Copié",
-  "welcomeHeader": "Bienvenue sur Darkwire v2.0",
+  "welcomeHeader": "Bienvenue sur Druwire",
   "sentFile": "Vous avez envoyé {filename}",
   "userJoined": "{username} a rejoint",
   "userLeft": "{username} a quitté",
@@ -34,5 +34,5 @@
   "sound": "Son",
   "welcomeModalCTA": "Ok",
   "lockedRoomHeader": "Ce salon est verrouillé",
-  "helpTranslate": "Aidez-nous à traduire Darkwire!"
+  "helpTranslate": "Aidez-nous à traduire Druwire!"
 }
