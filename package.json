@@ -25,5 +25,8 @@
   },
   "devDependencies": {
     "concurrently": "^4.1.0"
+  },
+  "dependencies": {
+    "socketio-jwt": "^4.5.0"
   }
 }

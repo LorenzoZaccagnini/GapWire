@@ -114,6 +114,20 @@ export class Chat extends Component {
         this.props.scrollToBottom()
       })
     }
+    console.log("change nick");
+    const token = localStorage.getItem('token')
+    console.log(token);
+    fetch('http://localhost:3001/api/v1/guard_test', {
+      method: 'GET',
+      headers: {
+        'Authorization': token
+      }
+    })
+    .then(res => res.json())
+    .then(data => { this.executeCommand({command: 'nick', params: [data.name]}) })
+    .catch(err => { console.log(err) })
+
+
   }
 
   componentWillReceiveProps(nextProps) {
@@ -159,6 +173,7 @@ export class Chat extends Component {
   }
 
   executeCommand(command) {
+    console.log(command);
     const commandToExecute = this.commands.find(cmnd => cmnd.command === command.command)
 
     if (commandToExecute) {

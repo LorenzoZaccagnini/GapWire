@@ -125,6 +125,7 @@ io.on('connection', async (socket) => {
   const roomId = socket.handshake.query.roomId
 
   const roomIdHash = getRoomIdHash(roomId)
+  console.log("room is: ", roomId);
 
   let room = await redis.hgetAsync('rooms', roomIdHash)
   room = JSON.parse(room || '{}')
@@ -195,7 +196,7 @@ router.get('/api/v1/guard_test', async(ctx, next) => {
 
   await passport.authenticate('jwt', function (err, user) {
     if (user) {
-      ctx.body = "hello " + user.displayName;
+      ctx.body = {name: user.displayName};
     } else {
       ctx.body = "No such user";
       console.log("err", err)

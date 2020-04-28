@@ -117,7 +117,6 @@ class Home extends Component {
 
   componentDidMount() {
     this.bindEvents()
-
     this.beep = window.Audio && new window.Audio(beepFile)
   }
 
